@@ -1,1 +1,3 @@
 add_subdirectory(stella_vslam)
+add_subdirectory(pangolin_viewer)
+add_subdirectory(stella_vslam_examples)
