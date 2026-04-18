@@ -27,6 +27,19 @@ __device__ void calcMask(const uint C[4], const int v, const int th, int& mask1,
     int d2;
 
     d1 = diffType(v, C[0] & 0xff, th);
+    d2 = diffType(v, C[2] & 0xff, th);
+
+    if((d1 | d2) == 0) {
+        return;
+    }
+
+    mask1 |= (d1 & 1) << 0;
+    mask2 |= ((d1 & 2) >> 1) << 0;
+
+    mask1 |= (d2 & 1) << 8;
+    mask2 |= ((d2 & 2) >> 1) << 8;
+
+    d1 = diffType(v, C[1] & 0xff, th);
     d2 = diffType(v, C[3] & 0xff, th);
 
     if((d1 | d2) == 0) {
@@ -75,7 +88,7 @@ __device__ void calcMask(const uint C[4], const int v, const int th, int& mask1,
     mask2 |= ((d2 & 2) >> 1) << 9;
 
     d1 = diffType(v, (C[0] >> (3 * 8)) & 0xff, th);
-    d2 = diffType(v, (C[2] >> (3 & 8)) & 0xff, th);
+    d2 = diffType(v, (C[2] >> (3 * 8)) & 0xff, th);
 
     mask1 |= (d1 & 1) << 3;
     mask2 |= ((d1 & 2) >> 1) << 3;

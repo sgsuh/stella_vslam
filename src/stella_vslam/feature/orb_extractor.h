@@ -81,13 +81,10 @@ public:
 
     bool image_pyramid_allocated_flag;
     std::vector<cv::cuda::GpuMat> image_pyramid_gpu_;
-    std::vector<cv::cuda::GpuMat> image_pyramid_border_gpu_;
+    std::vector<cv::cuda::GpuMat> blurred_image_pyramid_gpu_;
 
 private:
     void initialize();
-    
-    //! Calculate scale factors and sigmas
-    void calc_scale_factors();
 
     //! Create a mask matrix that constructed by rectangles
     void create_rectangle_mask(const unsigned int cols, const unsigned int rows);
