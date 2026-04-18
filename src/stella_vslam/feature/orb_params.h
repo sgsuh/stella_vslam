@@ -32,6 +32,7 @@ struct orb_params {
     const unsigned int num_levels_ = 8;
     const unsigned int ini_fast_thr_ = 20;
     const unsigned int min_fast_thr_ = 7;
+    const unsigned int max_num_keypts_ = 2000;
 
     //! A list of the scale factor of each pyramid layer
     std::vector<float> scale_factors_;

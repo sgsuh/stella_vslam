@@ -18,9 +18,11 @@ public:
     //! half size of FAST patch
     static constexpr int fast_half_patch_size_ = fast_patch_size_ / 2;
 
-private:
     //! Index limitation that used for calculating of keypoint orientation
     std::vector<int> u_max_;
+    
+private:
+    
 };
 
 } // namespace feature

@@ -69,6 +69,10 @@ else()
     message(FATAL_ERROR "Invalid BoW framework: ${BOW_FRAMEWORK}")
 endif()
 
+# CUDA (required: stella_vslam/cuda module headers are included by public API)
+find_package(CUDAToolkit REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS cudev cudafilters cudaimgproc cudawarping cudaarithm)
+
 # cuda_efficient_features
 set(USE_CUDA_EFFICIENT_DESCRIPTORS OFF CACHE BOOL "Enable cuda_efficient_features")
 find_path(cuda_efficient_features_INCLUDE_DIR NAMES cuda_efficient_features.h)
@@ -106,8 +110,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # cuda_efficient_features
 if (USE_CUDA_EFFICIENT_DESCRIPTORS)
-    find_package(OpenCV REQUIRED core features2d cudev cudafilters cudaimgproc cudawarping)
-    find_package(CUDAToolkit REQUIRED)
     target_compile_definitions(${PROJECT_NAME} PUBLIC USE_CUDA_EFFICIENT_DESCRIPTORS)
 endif ()
 
@@ -241,10 +243,15 @@ target_link_libraries(${PROJECT_NAME}
                       ${SUITESPARSE_LIBRARIES}
                       ${BoW_LIBRARY}
                       "$<$<BOOL:${spdlog_FOUND}>:spdlog::spdlog>"
-                      "$<$<BOOL:${USE_CUDA_EFFICIENT_DESCRIPTORS}>:${cuda_efficient_features_LIBRARY};opencv_cudafilters;opencv_cudawarping>"
+                      CUDA::cudart
+                      opencv_cudafilters
+                      opencv_cudawarping
+                      opencv_cudaarithm
+                      opencv_cudaimgproc
+                      "$<$<BOOL:${USE_CUDA_EFFICIENT_DESCRIPTORS}>:${cuda_efficient_features_LIBRARY}>"
                       PRIVATE
                       ${LAPACK_LIBRARIES}
-                      "$<$<BOOL:${USE_CUDA_EFFICIENT_DESCRIPTORS}>:CUDA::cudart;CUDA::cublas>")
+                      "$<$<BOOL:${USE_CUDA_EFFICIENT_DESCRIPTORS}>:CUDA::cublas>")
 
 # ----- Install configuration -----
 

@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.1)
-project(stella_vslam LANGUAGES CXX C)
+cmake_minimum_required(VERSION 3.18)
+project(stella_vslam LANGUAGES CXX C CUDA)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

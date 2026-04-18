@@ -11,6 +11,11 @@
 #include <cuda_efficient_descriptors.h>
 #endif
 
+#include <opencv2/core/cuda.hpp>
+#include <opencv2/cudafilters.hpp>
+#include <stella_vslam/cuda/Fast.h>
+#include <stella_vslam/cuda/Orb.h>
+
 namespace stella_vslam {
 namespace feature {
 
@@ -53,6 +58,10 @@ public:
                   const descriptor_type desc_type = descriptor_type::ORB,
                   const std::vector<std::vector<float>>& mask_rects = {});
 
+    cuda::GpuFast gpuFast;
+    cuda::IC_Angle ic_angle_gpu;
+    cuda::GpuOrb gpuOrb;
+
     //! Destructor
     virtual ~orb_extractor() = default;
 
@@ -70,7 +79,13 @@ public:
     //! Image pyramid
     std::vector<cv::Mat> image_pyramid_;
 
+    bool image_pyramid_allocated_flag;
+    std::vector<cv::cuda::GpuMat> image_pyramid_gpu_;
+    std::vector<cv::cuda::GpuMat> image_pyramid_border_gpu_;
+
 private:
+    void initialize();
+    
     //! Calculate scale factors and sigmas
     void calc_scale_factors();
 
@@ -80,8 +95,14 @@ private:
     //! Compute image pyramid
     void compute_image_pyramid(const cv::Mat& image);
 
+    void compute_image_pyramid_gpu(const cv::Mat& image);
+
+    void create_gaussian_filter();
+
     //! Compute fast keypoints for cells in each image pyramid
     void compute_fast_keypoints(std::vector<std::vector<cv::KeyPoint>>& all_keypts, const cv::Mat& mask) const;
+
+    void compute_fast_keypoints_gpu(std::vector<std::vector<cv::KeyPoint>>& all_keypts, const cv::Mat& mask);
 
     //! Pick computed keypoints on the image uniformly
     std::vector<cv::KeyPoint> distribute_keypoints(const std::vector<cv::KeyPoint>& keypts_to_distribute,
@@ -100,6 +121,8 @@ private:
     //! Compute orb descriptor of a keypoint
     void compute_orb_descriptor(const cv::KeyPoint& keypt, const cv::Mat& image, uchar* desc) const;
 
+    void compute_orb_descriptors_gpu(const cv::cuda::GpuMat& image, const std::vector<cv::KeyPoint>& keypts, cv::Mat& descriptors);
+
     //! Area of node occupied by one feature point
     unsigned int min_area_sqrt_;
 
@@ -112,8 +135,15 @@ private:
 
     descriptor_type desc_type_;
 
+    std::vector<unsigned int> num_keypts_per_level_;
+
     //! feature descriptor implementations
     orb_impl orb_impl_;
+
+    cuda::Stream mcvStream;
+    std::vector<cv::Point> pattern;
+    cv::Ptr<cv::cuda::Filter> gaussian_filter;
+
 #ifdef USE_CUDA_EFFICIENT_DESCRIPTORS
     cv::Ptr<cv::cuda::HashSIFT> hash_sift_;
 #endif
